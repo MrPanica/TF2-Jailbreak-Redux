@@ -634,12 +634,31 @@ methodmap JailFighter
 	 *
 	 *	@noreturn
 	*/
-	public void EmptyWeaponSlots()
+		public void EmptyWeaponSlots()
 	{
 		int client = this.index;
 		if (!IsClientValid(client))
 			return;
-
+		
+		int offset = FindSendPropInfo("CTFPlayer", "m_hMyWeapons");
+		for (int i = 0, weapon, clip; i <= 188; i += 4)
+		{
+			weapon = GetEntDataEnt2(client, offset + i);
+			if(weapon != -1)
+			{
+				clip = GetEntProp(weapon, Prop_Data, "m_iClip1");
+				if (clip != -1)
+					SetEntProp(weapon, Prop_Send, "m_iClip1", 0);
+	
+				clip = GetEntProp(weapon, Prop_Data, "m_iClip2");
+				if (clip != -1)
+					SetEntProp(weapon, Prop_Send, "m_iClip2", 0);
+	
+				SetWeaponAmmo(weapon, 0);
+			}
+		}
+		
+		/*
 		int offset = FindDataMapInfo(client, "m_hMyWeapons") - 4;
 		int weapon, clip;
 
@@ -661,9 +680,10 @@ methodmap JailFighter
 
 			SetWeaponAmmo(weapon, 0);
 		}
+		*/
 
 		SetEntProp(client, Prop_Send, "m_iAmmo", 0, 4, 3);
-
+		
 		char sClassName[64];
 		int wep = GetPlayerWeaponSlot(client, TFWeaponSlot_Melee);
 		if (wep > MaxClients && IsValidEdict(wep) && GetEdictClassname(wep, sClassName, sizeof(sClassName)))
